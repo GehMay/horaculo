@@ -12,3 +12,15 @@ class EvaluationCreate(BaseModel):
 
 class QRCodeData(BaseModel):
     qr_data: str
+
+class StudentResponse(BaseModel):
+    id: int
+    email: str
+
+class EventMentorResponse(BaseModel):
+    id: int
+    titulo: str
+    descricao: str
+    data_hora: str # ou datetime
+    status: str
+    alunos: List[StudentResponse]

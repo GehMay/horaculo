@@ -6,11 +6,50 @@ from datetime import datetime, timedelta, timezone
 from app.database import get_db
 from app.models.user import User, RoleEnum
 from app.models.event import Event, EventEnrollment, StudentAttribute
-from app.schemas.event import EvaluationCreate, QRCodeData
+from app.schemas.event import EvaluationCreate, QRCodeData, EventMentorResponse
 from app.core.security import get_current_user, require_role
 from app.config import settings
 
 router = APIRouter(prefix="/api/v1/events", tags=["events"])
+
+@router.get("/mentor/my-events", response_model=list[EventMentorResponse])
+def get_mentor_events(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role([RoleEnum.MENTOR]))
+):
+    # Fetch all events where this mentor is enrolled
+    enrollments = db.query(EventEnrollment).filter(
+        EventEnrollment.user_id == current_user.id
+    ).all()
+    
+    result = []
+    for enr in enrollments:
+        event = db.query(Event).filter(Event.id == enr.event_id).first()
+        if not event:
+            continue
+            
+        # Get students that this mentor evaluated/is evaluating in this event
+        students_enr = db.query(EventEnrollment).filter(
+            EventEnrollment.event_id == event.id,
+            EventEnrollment.avaliador_id == current_user.id
+        ).all()
+        
+        student_list = []
+        for s_enr in students_enr:
+            student = db.query(User).filter(User.id == s_enr.user_id).first()
+            if student:
+                student_list.append({"id": student.id, "email": student.email})
+                
+        result.append({
+            "id": event.id,
+            "titulo": event.titulo,
+            "descricao": event.descricao,
+            "data_hora": event.data_hora.isoformat() if event.data_hora else "",
+            "status": event.status.value,
+            "alunos": student_list
+        })
+        
+    return result
 
 @router.post("/{event_id}/enroll")
 def enroll_event(

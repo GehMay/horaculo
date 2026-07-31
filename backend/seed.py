@@ -1,12 +1,13 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 import bcrypt
+import datetime
 
 # Setup DB
-engine = create_engine('sqlite:///c:/Users/26028945/Desktop/horaculo/backend/horaculo.db')
+engine = create_engine('sqlite:///horaculo.db')
 from app.database import Base
 from app.models.user import User, RoleEnum, StatusEnum
-from datetime import datetime
+from app.models.profile import ProfileMentor
 
 # Cria tabelas agora que o User está carregado no Base
 Base.metadata.create_all(engine)
@@ -50,7 +51,25 @@ try:
         if not existente:
             session.add(u)
     session.commit()
-    print("Seed executado com sucesso! Usuários criados.")
+    
+    # Criar perfil do Mentor
+    mentor = session.query(User).filter_by(email="mentor@expert.com").first()
+    if mentor:
+        existente_perfil = session.query(ProfileMentor).filter_by(user_id=mentor.id).first()
+        if not existente_perfil:
+            perfil_mentor = ProfileMentor(
+                user_id=mentor.id,
+                nome_completo="Carlos Roberto (Especialista em RH)",
+                cpf="12345678900",
+                telefone="(11) 99999-9999",
+                data_nascimento=datetime.date(1980, 5, 20),
+                genero="Masculino",
+                foto_url="/mentor.jpg"
+            )
+            session.add(perfil_mentor)
+            session.commit()
+
+    print("Seed executado com sucesso! Usuários e perfis criados.")
 except Exception as e:
     print(f"Erro ao criar seed: {e}")
     session.rollback()

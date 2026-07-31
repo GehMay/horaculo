@@ -15,6 +15,8 @@ import { VagasAluno } from '../modules/aluno/VagasAluno';
 
 import { RecrutamentoEmpresa } from '../modules/empresa/RecrutamentoEmpresa';
 
+import { MentorEvents } from '../pages/MentorEvents';
+
 function IndexRoute() {
   const { user } = useContext(AuthContext);
   if (user?.role === 'EMPRESA') {
@@ -38,6 +40,7 @@ export function AppRoutes() {
             <Route path="onboarding" element={<OnboardingAluno />} />
             <Route path="aluno/vagas" element={<VagasAluno />} />
             <Route path="empresa/kanban" element={<RecrutamentoEmpresa />} />
+            <Route path="mentor/eventos" element={<MentorEvents />} />
             <Route path="modulo-4" element={<Tab4 />} />
             <Route path="modulo-5" element={<Tab5 />} />
           </Route>

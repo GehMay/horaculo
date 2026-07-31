@@ -65,17 +65,25 @@ const Title = styled.h1`
 export function Layout() {
   const { user, signOut } = React.useContext(AuthContext);
   const isEmpresa = user?.role === 'EMPRESA';
+  const isMentor = user?.role === 'MENTOR';
 
   return (
     <Container>
       <Sidebar>
         <Title>FECAP HUB</Title>
         <NavList>
-          {!isEmpresa && (
+          {!isEmpresa && !isMentor && (
             <>
               <li><StyledLink to="/">Home</StyledLink></li>
               <li><StyledLink to="/onboarding">Meu Perfil</StyledLink></li>
               <li><StyledLink to="/aluno/vagas">Vagas & Estágios</StyledLink></li>
+            </>
+          )}
+          {isMentor && (
+            <>
+              <li><StyledLink to="/">Home</StyledLink></li>
+              <li><StyledLink to="/onboarding">Meu Perfil</StyledLink></li>
+              <li><StyledLink to="/mentor/eventos">Meus Eventos</StyledLink></li>
             </>
           )}
           {isEmpresa && (
